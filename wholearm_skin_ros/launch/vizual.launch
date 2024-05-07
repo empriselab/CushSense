@@ -1,0 +1,6 @@
+<launch>
+    <node name="arduino" pkg="rosserial_python" type="serial_node.py" args="_port:=/dev/ttyACM0 _baud:=115200" output="screen" />
+    <node name="taxel_pub" pkg="wholearm_skin_ros" type="custom_taxel_pub.py" output="screen" />
+    <node name="inference" pkg="wholearm_skin_ros" type="inference.py" output="screen" />
+    <node name="skin_viz" pkg="wholearm_skin_ros" type="viz_sub.py" output="screen" />
+</launch>
