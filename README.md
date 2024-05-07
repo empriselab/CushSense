@@ -46,7 +46,7 @@ Reads digital data from all taxels and publish it to a ros node.
 A latest change made to make the data-reading process much faster.
 
 `serial_node.py`:<br>
-This is a file mentioned in the lauch file but not included in this repository. To get this file, you only need to install [rosserial package](https://wiki.ros.org/rosserial). It can set up serial communication between the arduino and python.
+Mentioned in the launch file but not included in this repository. To get this file, you only need to install [rosserial package](https://wiki.ros.org/rosserial). It can set up serial communication between the arduino and python.
 
 `custom_taxel_pub.py`:<br>
 Takes in raw digital data from the `/skin/taxel` topic and publishes to the `/skin/taxel_fast` topic.
@@ -95,11 +95,9 @@ chmod +x gen_json.py
 This allows rosrun to find gen_json.py
 
 # V. Steps to perform calibration
-Due to the differences in physical structure between taxels, we decided to do a calibration process for each taxel. Steps are as followed.
+Due to the differences in physical structure among taxels, we decided to do a calibration process for each taxel. Steps are as follows.
 
-Plug in the Arduino. Make sure that the connector to the multiplexer is connected to the "top" of the multiplexer (words are upright).
-
-The arduino code is in `skin.ino`. It publishes an array with all of the digital data from each taxel. To give Arduino connection permission, use 'sudo chmod a+rw /dev/ttyACM0' (change this to your own port).
+Plug in the Arduino. Make sure that the connector to the multiplexer is connected to the "top" of the multiplexer. The arduino code is in `skin.ino`. It publishes an array with all of the digital data from each taxel. To give Arduino connection permission, use 'sudo chmod a+rw /dev/ttyACM0' (change this to your own port).
 
 Terminal 1:
 ```
@@ -123,12 +121,31 @@ Terminal 5:
 ```
 rosrun wholearm_skin_ros data_collection.py
 ```
-After these, it will start printing values once the zero offset for taxel values has been calculated. Post this, you can start collecting data using the intruder.
+After these, it will start printing values once the zero offset for taxel values has been calculated. Post this, you can start collecting data using the intruder. Once you're done, press `Ctrl + c` to stop the script and save the data. After this, run `rosrun wholearm_skin_ros calibration.py` to fit the calibration function. Make sure to change the file name in the script to the file name of the data you just collected. To test the function, run `rosrun wholearm_skin_ros inference.py`. This will publish the force readings obtained from the skin on `/calibration` topic. You can use `rqt_plot` to view the plots for `/calibration` and ground truth data on `forque/forqueSensor/wrench/force/z`.
 
-Once you're done, press `Ctrl + c` to stop the script and save the data.
+# VI. Recording Data During a User Study
 
-After this, run `rosrun wholearm_skin_ros calibration.py` to fit the calibration function. Make sure to change the file name in the script to the file name of the data you just collected. 
+One useful feature of the whole arm skin is the ability to record data during a user study. Here is a guide on how to do this: Right before the user study, run all of these commands minus ../record.sh in Terminal 3. This way, the enviornment is already set up, and all you have to do is run ../record.sh in Terminal 3 when you want to record a bag. 
 
-To test the function, run `rosrun wholearm_skin_ros inference.py`. This will publish the force readings obtained from the skin on `/calibration` topic.
+First, connect to the Arduino and open the Arduino IDE. Then pull up `skin.ino` and upload sketch.
 
-You can use `rqt_plot` to view the plots for `/calibration` and ground truth data on `forque/forqueSensor/wrench/force/z`.
+Terminal 1:
+```
+roscore
+```
+
+Terminal 2:
+```
+rosnode kill --all
+source devel/setup.bash
+roslaunch wholearm_skin_ros vizual.launch
+```
+
+Terminal 3:
+```
+source devel/setup.bash
+cd src/user_study
+mkdir user_name
+cd user_name
+../record.sh
+```
